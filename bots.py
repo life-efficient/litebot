@@ -15,7 +15,7 @@ import subprocess, os
 max_time = 10
 
 class Bot():
-    def __init__(self, port_no="9220"):
+    def __init__(self, port_no="9220", headless=False, verbose=False):
         print('initialising bot')
         my_env = os.environ.copy()
         my_env["PATH"] = "/usr/sbin:/sbin:" + my_env["PATH"]
@@ -26,14 +26,25 @@ class Bot():
         options.add_argument("--no-sandbox")	# without this, the chrome webdriver can't start (SECURITY RISK)
         # print(f"127.0.0.1:{port_no}")
         options.add_experimental_option(f"debuggerAddress", f"127.0.0.1:{port_no}")	# attach to the same port that you're running chrome on
-        # options.add_argument("--headless")
+        if headless:
+            options.add_argument("--headless")
         #options.add_argument("--window-size=1920x1080")
         self.driver = webdriver.Chrome(chrome_options=options)			# create webdriver
+        self.verbose = verbose
 
     def click_btn(self, text):
-        btns = self.driver.find_elements_by_xpath('//button')
-        btn = [b for b in btns if b.text.lower() == text.lower()][0]
-        btn.click()
+        if self.verbose: print(f'clicking {text} btn')
+        for element_type in ['button', 'div', 'input', 'a', 'label']:
+            btns = self.driver.find_elements_by_xpath(f'//{element_type}')
+            # for btn in btns:
+            #     print(btn.text)
+            try:
+                btn = [b for b in btns if b.text.lower() == text.lower()][0]
+                btn.click()
+                return
+            except IndexError:
+                continue
+        raise ValueError('btn not found')
 
     def search(self, query, _type='search', placeholder=None):
         sleep(1)
@@ -44,3 +55,6 @@ class Bot():
         else:
             s = s[0]
         s.send_keys(query) 
+
+    def toggle_verbose(self):
+        self.verbose = not self.verbose

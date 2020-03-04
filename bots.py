@@ -20,7 +20,7 @@ class Bot():
         my_env = os.environ.copy()
         my_env["PATH"] = "/usr/sbin:/sbin:" + my_env["PATH"]
         port_no="9220"
-        subprocess.Popen(f'google-chrome --remote-debugging-port={port_no} --user-data-dir="bots"'.split(), env=my_env)
+        subprocess.Popen(f'google-chrome --remote-debugging-port={port_no} --user-data-dir=bots'.split(), env=my_env)
         print('process ran')
         options = Options()
         options.add_argument("--no-sandbox")	# without this, the chrome webdriver can't start (SECURITY RISK)
@@ -34,24 +34,37 @@ class Bot():
 
     def click_btn(self, text):
         if self.verbose: print(f'clicking {text} btn')
-        for element_type in ['button', 'div', 'input', 'a', 'label']:
+        element_types = ['button', 'div', 'input', 'a', 'label']
+        for element_type in element_types:
             btns = self.driver.find_elements_by_xpath(f'//{element_type}')
             # for btn in btns:
             #     print(btn.text)
+            
+            # SEARCH BY TEXT
             try:
                 btn = [b for b in btns if b.text.lower() == text.lower()][0]
                 btn.click()
                 return
             except IndexError:
-                continue
-        raise ValueError('btn not found')
+                pass
 
-    def search(self, query, _type='search', placeholder=None):
+        # for element_type in element_types:
+            # SEARCH BY VALUE ATTRIBUTE IF NOT YET FOUND
+            try:
+                btn = self.driver.find_elements_by_xpath(f'//{element_type}[@value="{text}"]')[0]
+                btn.click()
+                return
+            except:
+                continue
+
+        raise ValueError(f'button containing "{text}" not found')
+
+    def _search(self, query, _type='search', placeholder=None):
         sleep(1)
         s = self.driver.find_elements_by_xpath(f'//input[@type="{_type}"]')
         print(s)
         if placeholder:
-            s = [i for i in s if i.get_attribute('placeholder') == placeholder][0]
+            s = [i for i in s if i.get_attribute('placeholder').lower() == placeholder.lower()][0]
         else:
             s = s[0]
         s.send_keys(query) 

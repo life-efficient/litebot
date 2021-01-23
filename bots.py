@@ -8,9 +8,7 @@ from selenium.common.exceptions import TimeoutException, WebDriverException
 from time import sleep, time
 import random
 import re
-
 import subprocess, os
-
 
 max_time = 10
 
@@ -24,7 +22,6 @@ class Bot():
         print('process ran')
         options = Options()
         options.add_argument("--no-sandbox")	# without this, the chrome webdriver can't start (SECURITY RISK)
-        # print(f"127.0.0.1:{port_no}")
         options.add_experimental_option(f"debuggerAddress", f"127.0.0.1:{port_no}")	# attach to the same port that you're running chrome on
         if headless:
             options.add_argument("--headless")
@@ -48,7 +45,6 @@ class Bot():
             except IndexError:
                 pass
 
-        # for element_type in element_types:
             # SEARCH BY VALUE ATTRIBUTE IF NOT YET FOUND
             try:
                 btn = self.driver.find_elements_by_xpath(f'//{element_type}[@value="{text}"]')[0]

@@ -12,14 +12,19 @@ import subprocess, os
 
 max_time = 10
 
+def open_chrome(port=9220, on_mac=True):
+    my_env = os.environ.copy()
+    if on_mac:
+        subprocess.Popen(['open', '-a', "Google Chrome", '--args', f'--remote-debugging-port={port}', 'http://www.example.com'], env=my_env)
+    else:
+        subprocess.Popen(f'google-chrome --remote-debugging-port={port} --user-data-dir=bots'.split(), env=my_env)
+
 class Bot():
-    def __init__(self, port_no="9220", headless=False, verbose=False):
+    def __init__(self, port_no=9220, headless=False, verbose=False):
         print('initialising bot')
-        my_env = os.environ.copy()
-        my_env["PATH"] = "/usr/sbin:/sbin:" + my_env["PATH"]
-        port_no="9220"
-        subprocess.Popen(f'google-chrome --remote-debugging-port={port_no} --user-data-dir=bots'.split(), env=my_env)
-        print('process ran')
+
+        open_chrome()
+
         options = Options()
         options.add_argument("--no-sandbox")	# without this, the chrome webdriver can't start (SECURITY RISK)
         options.add_experimental_option(f"debuggerAddress", f"127.0.0.1:{port_no}")	# attach to the same port that you're running chrome on
@@ -67,3 +72,8 @@ class Bot():
 
     def toggle_verbose(self):
         self.verbose = not self.verbose
+
+if __name__ == '__main__':
+    # EXAMPLE USAGE
+    bot = Bot()
+    bot.driver.get('https://www.google.com')

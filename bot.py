@@ -16,9 +16,11 @@ max_time = 10
 def open_chrome(port=9220, on_mac=True):
     my_env = os.environ.copy()
     if on_mac:
+        print('opening chrome')
         subprocess.Popen(['open', '-a', "Google Chrome", '--args', f'--remote-debugging-port={port}', 'http://www.example.com'], env=my_env)
     else:
         subprocess.Popen(f'google-chrome --remote-debugging-port={port} --user-data-dir=data_dir'.split(), env=my_env)
+    print('opened chrome')
 
 class Bot():
     def __init__(self, port_no=9220, headless=False, verbose=False):
@@ -34,6 +36,9 @@ class Bot():
         #options.add_argument("--window-size=1920x1080")
         self.driver = webdriver.Chrome(chrome_options=options)			# create webdriver
         self.verbose = verbose
+    
+    def scroll(self, x=0, y=10000):
+        self.driver.execute_script(f'window.scrollBy({x}, {y})')
 
     def click_btn(self, text):
         if self.verbose: print(f'clicking {text} btn')

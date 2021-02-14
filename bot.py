@@ -9,6 +9,7 @@ from time import sleep, time
 import random
 import re
 import subprocess, os
+import requests
 
 max_time = 10
 
@@ -17,19 +18,19 @@ def open_chrome(port=9220, on_mac=True):
     if on_mac:
         subprocess.Popen(['open', '-a', "Google Chrome", '--args', f'--remote-debugging-port={port}', 'http://www.example.com'], env=my_env)
     else:
-        subprocess.Popen(f'google-chrome --remote-debugging-port={port} --user-data-dir=bots'.split(), env=my_env)
+        subprocess.Popen(f'google-chrome --remote-debugging-port={port} --user-data-dir=data_dir'.split(), env=my_env)
 
 class Bot():
     def __init__(self, port_no=9220, headless=False, verbose=False):
         print('initialising bot')
 
-        open_chrome()
-
         options = Options()
-        options.add_argument("--no-sandbox")	# without this, the chrome webdriver can't start (SECURITY RISK)
-        options.add_experimental_option(f"debuggerAddress", f"127.0.0.1:{port_no}")	# attach to the same port that you're running chrome on
         if headless:
             options.add_argument("--headless")
+        else:
+            open_chrome()
+            options.add_experimental_option(f"debuggerAddress", f"127.0.0.1:{port_no}")	# attach to the same port that you're running chrome on
+        options.add_argument("--no-sandbox")	# without this, the chrome webdriver can't start (SECURITY RISK)
         #options.add_argument("--window-size=1920x1080")
         self.driver = webdriver.Chrome(chrome_options=options)			# create webdriver
         self.verbose = verbose
@@ -72,6 +73,11 @@ class Bot():
 
     def toggle_verbose(self):
         self.verbose = not self.verbose
+
+    def download_file(self, src_url, local_destination):
+        response = requests.get(src_url)
+        with open(local_destination, 'wb+') as f:
+            f.write(response.content)
 
 if __name__ == '__main__':
     # EXAMPLE USAGE

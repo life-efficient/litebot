@@ -10,6 +10,7 @@ import random
 import re
 import subprocess, os
 import requests
+import boto3
 
 max_time = 10
 
@@ -36,7 +37,7 @@ class Bot():
         #options.add_argument("--window-size=1920x1080")
         self.driver = webdriver.Chrome(chrome_options=options)			# create webdriver
         self.verbose = verbose
-    
+
     def scroll(self, x=0, y=10000):
         self.driver.execute_script(f'window.scrollBy({x}, {y})')
 
@@ -47,7 +48,7 @@ class Bot():
             btns = self.driver.find_elements_by_xpath(f'//{element_type}')
             # for btn in btns:
             #     print(btn.text)
-            
+
             # SEARCH BY TEXT
             try:
                 btn = [b for b in btns if b.text.lower() == text.lower()][0]
@@ -74,7 +75,7 @@ class Bot():
             s = [i for i in s if i.get_attribute('placeholder').lower() == placeholder.lower()][0]
         else:
             s = s[0]
-        s.send_keys(query) 
+        s.send_keys(query)
 
     def toggle_verbose(self):
         self.verbose = not self.verbose
@@ -83,6 +84,19 @@ class Bot():
         response = requests.get(src_url)
         with open(local_destination, 'wb+') as f:
             f.write(response.content)
+
+    # To dump S3 files you firstly need to install the CLI 
+    # https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
+
+    def upload_json(self, json_file, filename):
+        s3 = boto3.resource('s3')
+        json.dump_s3 = lambda obj, f: s3.Object(key=f).put(Body=json.dumps(obj))
+        json.dump_s3(json_file, filename)
+
+
+
+
+
 
 if __name__ == '__main__':
     # EXAMPLE USAGE

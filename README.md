@@ -1,9 +1,18 @@
 # Bots
 
-Boilerplate code for making web scrapers and bots powered by Selenium.
+Making web scrapers and bots powered by Selenium without all of the boilerplate.
 
-Start up a browser driven by selenium by running `python bot.py`
+## Getting started
 
-For this to work, you will need to have
-1. Downloaded and unzipped [Chromedriver](https://chromedriver.chromium.org/downloads)
-2. Added it to your path by moving it to `/usr/local/bin` (Mac/Linux) or somewhere else (Windows... look it up)
+1. `pip install litebot`
+2. Download [Chromedriver](https://chromedriver.chromium.org/downloads) (the version corresponding to your version of Chrome) and unzip it.
+3. Move it into to your `PATH` so it can be found by your OS. E.g. `/usr/local/bin` (Mac/Linux) or somewhere else (Windows... look it up)
+
+```
+from litebot.bots import Bot
+
+bot = Bot()
+bot.driver.get('https://www.google.com')
+bot.click_btn('sign up')
+bot.download_file('https://www.example.com/image.jpg', 'images/downloaded_img.jpg')
+bot.scroll(x=100, y=200)

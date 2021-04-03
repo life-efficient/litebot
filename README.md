@@ -1,6 +1,6 @@
 # Bots
 
-Making web scrapers and bots powered by Selenium without all of the boilerplate.
+Make web scrapers and bots powered by Selenium without all of the boilerplate.
 
 ## Getting started
 

@@ -16,9 +16,10 @@ max_time = 10
 def open_chrome(port=9220, on_mac=True):
     my_env = os.environ.copy()
     if on_mac:
-        print('opening chrome')
-        subprocess.Popen(['open', '-a', "Google Chrome", '--args', f'--remote-debugging-port={port}', 'http://www.example.com'], env=my_env)
+        print('opening chrome (Mac)')
+        subprocess.Popen(['open', '-a', "Google Chrome", '--args', f'--remote-debugging-port={port}', 'http://www.example.com'])#, env=my_env)
     else:
+        print('opening chrome (Linux)')
         subprocess.Popen(f'google-chrome --remote-debugging-port={port} --user-data-dir=data_dir'.split(), env=my_env)
     print('opened chrome')
 
@@ -34,7 +35,7 @@ class Bot():
             options.add_experimental_option(f"debuggerAddress", f"127.0.0.1:{port_no}")	# attach to the same port that you're running chrome on
         options.add_argument("--no-sandbox")	# without this, the chrome webdriver can't start (SECURITY RISK)
         #options.add_argument("--window-size=1920x1080")
-        self.driver = webdriver.Chrome(chrome_options=options)			# create webdriver
+        self.driver = webdriver.Chrome(options=options)			# create webdriver
         self.verbose = verbose
     
     def scroll(self, x=0, y=10000):
@@ -83,6 +84,10 @@ class Bot():
         response = requests.get(src_url)
         with open(local_destination, 'wb+') as f:
             f.write(response.content)
+
+    def s3_upload(self, obj, filename):
+        s3 = boto3.resource('s3')
+        s3.Object(key=filename).put(Body=json.dumps(obj))
 
 if __name__ == '__main__':
     # EXAMPLE USAGE
